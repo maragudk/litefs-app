@@ -19,7 +19,7 @@ func HomePage(articles []model.Article, search, region string) g.Node {
 
 		H1(g.Text("Articles")),
 
-		P(g.Rawf(`Served to you from region <strong>%v</strong>.`, region)),
+		P(g.Rawf(`Served to you from the <strong>%v</strong> region.`, region)),
 
 		g.If(len(articles) == 0 && search == "",
 			P(g.Raw(`No articles yet. <a href="/new">Create a new one</a>.`)),
