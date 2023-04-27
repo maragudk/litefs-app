@@ -1,3 +1,5 @@
+FROM flyio/litefs:0.3.0-beta6 AS litefs
+
 FROM golang AS builder
 WORKDIR /src
 
@@ -10,11 +12,16 @@ RUN GOOS=linux GOARCH=amd64 go build -tags "sqlite_fts5 sqlite_foreign_keys" -bu
 FROM debian:bullseye-slim AS runner
 WORKDIR /app
 
+RUN mkdir -p /data /mnt/data
+
 RUN echo "deb http://deb.debian.org/debian bookworm main" >>/etc/apt/sources.list
 RUN set -x && apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates/bullseye sqlite3/bookworm && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates/bullseye sqlite3/bookworm fuse/bullseye && \
   rm -rf /var/lib/apt/lists/*
 
+ADD litefs.yml /etc/litefs.yml
+
+COPY --from=litefs /usr/local/bin/litefs ./
 COPY --from=builder /bin/server ./
 
-CMD ["./server"]
+CMD ["./litefs", "mount"]
