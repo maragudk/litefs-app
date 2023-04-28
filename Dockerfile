@@ -1,3 +1,5 @@
+FROM flyio/litefs:0.3.0-beta6 AS litefs
+
 FROM golang AS builder
 WORKDIR /src
 
@@ -19,7 +21,7 @@ RUN set -x && apt-get update && \
 
 ADD litefs.yml /etc/litefs.yml
 
-COPY --from=flyio/litefs:0.4 /usr/local/bin/litefs ./
+COPY --from=litefs /usr/local/bin/litefs ./
 COPY --from=builder /bin/server ./
 
 CMD ["./litefs", "mount"]
